@@ -40,7 +40,8 @@ The `AppConfigManager` supports switching projects at runtime. The selection is 
 
 ### API Usage
 ```python
-from config.app_config.app_config_manager import AppConfigManager
+# Convenience imports via __init__.py
+from config.app_config import AppConfigManager
 
 config = AppConfigManager()
 
@@ -56,14 +57,51 @@ config.set_default_project("audi")
 print(config.ProjectConfiguration.EXECUTE_GROUP)
 ```
 
-## 3. Class Names Logic
+## 3. Error Handling (Custom Exceptions)
+The manager raises custom exceptions for common error scenarios:
+
+- **Missing project file**: `ProjectNotFoundError` (subclasses `FileNotFoundError`)
+- **Missing key** when using the callable accessor (`config("KEY")`): `ConfigKeyNotFoundError` (subclasses `KeyError`)
+- **Invalid project name**: `InvalidProjectNameError` (subclasses `ValueError`) — raised when a project name contains path traversal sequences (`../`, `..`), slashes, spaces, or other disallowed characters. Valid names may only contain alphanumeric characters, hyphens, underscores, plus signs, and dots (e.g. `ferrari`, `tata_gen3+`, `v1.2`). Names must not start with `.` or contain `..`.
+
+```python
+from config.app_config import (
+    AppConfigManager,
+    ProjectNotFoundError,
+    ConfigKeyNotFoundError,
+    InvalidProjectNameError,
+)
+
+config = AppConfigManager()
+
+try:
+    config.load_project("does_not_exist")
+except ProjectNotFoundError as e:
+    print(e)
+
+try:
+    value = config("SOME_MISSING_KEY")
+except ConfigKeyNotFoundError as e:
+    print(e)
+
+try:
+    config.load_project("../../etc/passwd")
+except InvalidProjectNameError as e:
+    print(e)  # "Invalid project name '../../etc/passwd'. Only alphanumeric..."
+```
+
+## 4. Class Names Logic
 The Manager dynamically creates classes based on precise **Section definitions**.
 - `#class Device Configuration` -> `config.DeviceConfiguration`
 - Lines starting with `#` but **not** `#class` are treated as comments and ignored.
 
-## 4. Data Types
+## 5. Data Types
 The manager automatically detects:
 - **Booleans**: `TRUE`, `FALSE`, `YES`, `NO`, `ON`, `OFF` (case-insensitive).
-- **Integers**: `123`, `0`.
-- **Floats**: `12.34`.
-- **Strings**: Everything else.
+- **Integers**: `123`, `0`, `-1`, `+5` (supports `+`/`-` prefixes).
+- **Floats**: `12.34`, `-0.5`, `+2.7`, `1e3`, `2.5e-1` (including scientific notation).
+- **Strings**: Everything else (including `inf`, `-inf`, `nan`, version strings like `0.0.1`).
+- **Empty values**: `KEY=` returns an empty string `""`.
+
+## 6. Thread Safety
+The `AppConfigManager` singleton uses a **thread-safe double-checked locking** pattern. Multiple threads can safely call `AppConfigManager()` concurrently and will always receive the same singleton instance.
