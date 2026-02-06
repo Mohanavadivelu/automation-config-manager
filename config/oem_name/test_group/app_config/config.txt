@@ -1,0 +1,57 @@
+
+<!-- This is a device configuration -->
+# =========================
+# Device Configuration
+# =========================
+ADB_DEVICE_1_ID=4B091VDAQ000F3
+ADB_DEVICE_1_VERSION=16
+
+ADB_DEVICE_2_ID=4b84c090
+ADB_DEVICE_2_VERSION=11
+
+
+# =========================
+# Project Configuration
+# =========================
+ENABLE_VIDEO_ENABLED=NO
+TEST_CASE_LOGGING_ENABLED=true
+EXECUTE_GROUP=FERRARI_PCTS
+
+
+
+# =========================
+# USB Controller Configuration
+# =========================
+PROJECT_USB_CONTROLLER_TYPE=ADB
+PROJECT_COMMAND_ENABLE_PORT_ID=7
+
+PROJECT_USB_OFF_CMD=echo 'simulateTx(06)4A000101' > /dev/ipcdebug
+PROJECT_USB_ON_CMD=echo 'simulateTx(06)4A000202' > /dev/ipcdebug
+
+
+# =========================
+# Logging
+# =========================
+SERVER_LOG_FOLDER_PATH=logs/appium_server_logs/
+APP_LOG_FOLDER_PATH=logs/appium_log/
+APP_LOG_FILE_NAME=application_log.log
+
+
+# =========================
+# Paths
+# =========================
+BASE_DIRECTORY=project_config/demo_project/pcts/
+
+APPIUM_CLIENT_CONFIGURATION_FILE=client/master_configuration.json
+TEST_CASE_GROUP_FILE=master/all_test_case.json
+TEST_CASE_GROUP_NAME=all_test_case
+TEST_CASE_DIRECTORY=test_case/
+TEST_CASE_COMMON_COMMAND=common/
+TEST_CASE_CLEAN_UP=clean_up/
+IMAGES_PATH=images/
+
+
+# =========================
+# Server
+# =========================
+SERVER_STARTUP_DELAY=3
